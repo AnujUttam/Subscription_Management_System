@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import App from './App';
 
-test('renders Subscriptify application without crashing', () => {
+test('renders Subscribly application without crashing', () => {
   render(
     <BrowserRouter>
       <AuthProvider>
@@ -11,6 +11,6 @@ test('renders Subscriptify application without crashing', () => {
       </AuthProvider>
     </BrowserRouter>
   );
-  const brandElements = screen.getAllByText(/Subscriptify/i);
+  const brandElements = screen.getAllByText(/Subscribly/i);
   expect(brandElements.length).toBeGreaterThan(0);
 });

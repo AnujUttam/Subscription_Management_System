@@ -114,7 +114,7 @@ function Signup() {
       <div className="auth-card">
         <div className="auth-brand">
           <div className="auth-logo">S</div>
-          <span>Subscriptify</span>
+          <span>Subscribly</span>
         </div>
 
         <div className="auth-heading">

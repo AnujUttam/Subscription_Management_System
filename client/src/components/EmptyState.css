@@ -17,8 +17,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef2ff;
-  color: #6366f1;
+  background: #eff6ff;
+  color: #2563eb;
   border-radius: 16px;
   margin-bottom: 16px;
 }
@@ -38,14 +38,15 @@
 .empty-state-button {
   margin-top: 18px;
   padding: 10px 18px;
-  background: #6366f1;
+  background: #2563eb;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
+  transition: background 0.15s ease;
 }
 
 .empty-state-button:hover {
-  background: #4f46e5;
+  background: #1d4ed8;
 }

@@ -121,7 +121,7 @@ function Settings() {
             onClick={handleLogout}
           >
             <LogOut size={16} />
-            <span>Log Out of Subscriptify</span>
+            <span>Log Out of Subscribly</span>
           </button>
         </div>
       </div>

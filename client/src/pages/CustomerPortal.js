@@ -123,7 +123,7 @@ function CustomerPortal() {
           <div className="portal-brand-icon">
             <CreditCard size={23} />
           </div>
-          <span>Subscript<span>Pro</span></span>
+          <span>Subscribly<span>Pro</span></span>
         </div>
 
         <div className="portal-menu-label">CUSTOMER MENU</div>

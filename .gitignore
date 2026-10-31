@@ -17,6 +17,7 @@ build/
 out/
 .next/
 coverage/
+backend-test-report/
 
 # Logs and runtime diagnostics
 logs/

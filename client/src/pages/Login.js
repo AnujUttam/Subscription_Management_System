@@ -1,14 +1,20 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, LogIn } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
+
+
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const { login } = useAuth();
+const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,8 +28,13 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Login Form Data:", formData);
-    alert("Login UI is ready. API integration will be added later.");
+    login({
+      name: "Admin User",
+      email: formData.email,
+      role: "admin",
+    });
+
+    navigate("/");
   };
 
   return (
@@ -78,9 +89,7 @@ function Login() {
               Remember me
             </label>
 
-            <Link to="/forgot-password">
-              Forgot password?
-            </Link>
+            <Link to="/forgot-password">Forgot password?</Link>
           </div>
 
           <button type="submit" className="auth-submit-btn">

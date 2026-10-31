@@ -1,6 +1,8 @@
 
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 import {
   LayoutDashboard,
   Package,
@@ -17,6 +19,9 @@ import {
 import "./Sidebar.css";
 
 function Sidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -55,8 +60,14 @@ function Sidebar() {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <aside className="sidebar">
+      {/* Logo */}
       <div className="sidebar-logo">
         <div className="logo-icon">
           <Repeat size={24} />
@@ -68,6 +79,7 @@ function Sidebar() {
         </div>
       </div>
 
+      {/* Main Menu */}
       <div className="sidebar-menu">
         <p className="menu-heading">MAIN MENU</p>
 
@@ -90,22 +102,32 @@ function Sidebar() {
         })}
       </div>
 
+      {/* Bottom Section */}
       <div className="sidebar-bottom">
         <NavLink to="/settings" className="menu-link">
           <Settings size={19} />
           <span>Settings</span>
         </NavLink>
 
-        <button className="menu-link logout-button">
+        {/* Logout */}
+        <button
+          className="menu-link logout-button"
+          onClick={handleLogout}
+          type="button"
+        >
           <LogOut size={19} />
           <span>Logout</span>
         </button>
 
+        {/* User Profile */}
         <div className="sidebar-profile">
-          <div className="profile-avatar">A</div>
-          <div>
-            <h4>Admin User</h4>
-            <span>Administrator</span>
+          <div className="profile-avatar">
+            {user?.name?.charAt(0).toUpperCase() || "U"}
+          </div>
+
+          <div className="profile-details">
+            <h4>{user?.name || "User"}</h4>
+            <span>{user?.role || "Customer"}</span>
           </div>
         </div>
       </div>

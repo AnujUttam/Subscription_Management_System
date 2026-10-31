@@ -7,10 +7,21 @@ import {
   Pencil,
   Trash2,
   X,
-  Edit3,
+  Layers,
+  Puzzle,
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import "./Products.css";
+
+const emptyForm = {
+  name: "",
+  type: "Physical",
+  salesPrice: "",
+  costPrice: "",
+  notes: "",
+  variants: "",
+  addons: "",
+};
 
 const initialProducts = [
   {
@@ -20,6 +31,8 @@ const initialProducts = [
     salesPrice: "65000",
     costPrice: "52000",
     notes: "High performance laptop",
+    variants: "8GB RAM, 16GB RAM, 32GB RAM",
+    addons: "Extended Warranty, Laptop Bag, Wireless Mouse",
   },
   {
     id: 2,
@@ -28,16 +41,10 @@ const initialProducts = [
     salesPrice: "999",
     costPrice: "400",
     notes: "1TB cloud storage plan",
+    variants: "100GB, 500GB, 1TB",
+    addons: "Priority Support, Data Backup",
   },
 ];
-
-const emptyForm = {
-  name: "",
-  type: "Physical",
-  salesPrice: "",
-  costPrice: "",
-  notes: "",
-};
 
 function Products() {
   const [products, setProducts] = useState(initialProducts);
@@ -61,6 +68,8 @@ function Products() {
       salesPrice: product.salesPrice,
       costPrice: product.costPrice,
       notes: product.notes,
+      variants: product.variants || "",
+      addons: product.addons || "",
     });
 
     setEditingId(product.id);
@@ -115,12 +124,13 @@ function Products() {
         )
       );
     } else {
-      const newProduct = {
-        id: Date.now(),
-        ...formData,
-      };
-
-      setProducts((prev) => [...prev, newProduct]);
+      setProducts((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          ...formData,
+        },
+      ]);
     }
 
     closeModal();
@@ -151,11 +161,11 @@ function Products() {
 
   return (
     <div className="products-page">
-      {/* Page Header */}
+      {/* Header */}
       <div className="page-header products-header">
         <div>
           <h1>Products</h1>
-          <p>Manage your products and pricing information.</p>
+          <p>Manage products, variants, add-ons and pricing.</p>
         </div>
 
         <button className="add-product-btn" onClick={openAddModal}>
@@ -179,7 +189,7 @@ function Products() {
         <span>{filteredProducts.length} Products</span>
       </div>
 
-      {/* Products Table */}
+      {/* Table */}
       <div className="products-table-container">
         <table className="products-table">
           <thead>
@@ -188,7 +198,8 @@ function Products() {
               <th>Type</th>
               <th>Sales Price</th>
               <th>Cost Price</th>
-              <th>Notes</th>
+              <th>Variants</th>
+              <th>Add-ons</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -207,14 +218,32 @@ function Products() {
                   </td>
 
                   <td>
-                    <span className="product-type">
-                      {product.type}
+                    <span className="product-type">{product.type}</span>
+                  </td>
+
+                  <td>
+                    ₹{Number(product.salesPrice).toLocaleString("en-IN")}
+                  </td>
+
+                  <td>
+                    ₹{Number(product.costPrice).toLocaleString("en-IN")}
+                  </td>
+
+                  <td>
+                    <span className="product-count">
+                      {product.variants
+                        ? product.variants.split(",").filter(Boolean).length
+                        : 0}
                     </span>
                   </td>
 
-                  <td>₹{Number(product.salesPrice).toLocaleString("en-IN")}</td>
-                  <td>₹{Number(product.costPrice).toLocaleString("en-IN")}</td>
-                  <td>{product.notes || "—"}</td>
+                  <td>
+                    <span className="product-count addon-count">
+                      {product.addons
+                        ? product.addons.split(",").filter(Boolean).length
+                        : 0}
+                    </span>
+                  </td>
 
                   <td>
                     <div className="product-actions">
@@ -239,7 +268,7 @@ function Products() {
               ))
             ) : (
               <tr>
-                <td colSpan="6">
+                <td colSpan="7">
                   <EmptyState
                     title="No products found"
                     description="Try another search or add a new product."
@@ -259,19 +288,10 @@ function Products() {
           <div className="product-modal">
             <div className="product-modal-header">
               <div>
-                <div className="modal-title-icon">
-                  <Edit3 size={19} />
-                </div>
-
                 <h2>
                   {editingId !== null ? "Edit Product" : "Add New Product"}
                 </h2>
-
-                <p>
-                  {editingId !== null
-                    ? "Update your product information."
-                    : "Enter your product details below."}
-                </p>
+                <p>Enter product information and optional configurations.</p>
               </div>
 
               <button type="button" onClick={closeModal}>
@@ -320,9 +340,7 @@ function Products() {
                     onChange={handleChange}
                   />
                   {errors.salesPrice && (
-                    <small className="product-error">
-                      {errors.salesPrice}
-                    </small>
+                    <small className="product-error">{errors.salesPrice}</small>
                   )}
                 </div>
 
@@ -338,9 +356,7 @@ function Products() {
                     onChange={handleChange}
                   />
                   {errors.costPrice && (
-                    <small className="product-error">
-                      {errors.costPrice}
-                    </small>
+                    <small className="product-error">{errors.costPrice}</small>
                   )}
                 </div>
               </div>
@@ -352,8 +368,44 @@ function Products() {
                   placeholder="Additional product information..."
                   value={formData.notes}
                   onChange={handleChange}
-                  rows="3"
+                  rows="2"
                 />
+              </div>
+
+              {/* Variants */}
+              <div className="product-section-heading">
+                <Layers size={18} />
+                <span>Product Variants</span>
+              </div>
+
+              <div className="product-form-group">
+                <label>Variants</label>
+                <textarea
+                  name="variants"
+                  placeholder="Example: 8GB RAM, 16GB RAM, 32GB RAM"
+                  value={formData.variants}
+                  onChange={handleChange}
+                  rows="2"
+                />
+                <small>Separate each variant using a comma.</small>
+              </div>
+
+              {/* Add-ons */}
+              <div className="product-section-heading">
+                <Puzzle size={18} />
+                <span>Product Add-ons</span>
+              </div>
+
+              <div className="product-form-group">
+                <label>Add-ons</label>
+                <textarea
+                  name="addons"
+                  placeholder="Example: Extended Warranty, Laptop Bag"
+                  value={formData.addons}
+                  onChange={handleChange}
+                  rows="2"
+                />
+                <small>Separate each add-on using a comma.</small>
               </div>
 
               <div className="product-modal-actions">

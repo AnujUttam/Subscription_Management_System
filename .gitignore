@@ -16,10 +16,12 @@ dist/
 build/
 out/
 .next/
+coverage/
 
 # Logs and runtime diagnostics
 logs/
 *.log
+*.tmp
 
 # Operating System files
 .DS_Store

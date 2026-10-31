@@ -50,60 +50,64 @@ const runBilling = async (req, res) => {
     const invoiceResults = [];
 
     for (const sub of dueSubscriptions) {
-      // Billing period definition:
-      // billingPeriodEnd corresponds to the subscription's scheduled nextBillingDate
-      const billingPeriodEnd = new Date(sub.nextBillingDate);
-      
-      // billingPeriodStart is one cycle interval before nextBillingDate
-      const calculatedStart = calculatePreviousBillingDate(billingPeriodEnd, sub.billingIntervalSnapshot);
-      // Ensure period start doesn't precede the subscription's start date
-      const billingPeriodStart = calculatedStart < new Date(sub.startDate) 
-        ? new Date(sub.startDate) 
-        : calculatedStart;
-
-      // Subtotal calculation in integer paise
-      const unitPrice = sub.unitPriceSnapshot;
-      const quantity = sub.quantity;
-      const subtotal = unitPrice * quantity;
-
-      // 18% tax calculation in integer paise with Math.round
-      const taxRatePercent = 18;
-      const taxAmount = Math.round((subtotal * taxRatePercent) / 100);
-      const totalAmount = subtotal + taxAmount;
-      const outstandingAmount = totalAmount;
-
-      // Due date: 7 days after billingPeriodEnd
-      const dueAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const planName = sub.planId ? sub.planId.name : 'Subscription Plan';
-      const lineItems = [
-        {
-          description: `${planName} (${sub.billingIntervalSnapshot}) x ${quantity}`,
-          quantity,
-          unitPrice,
-          amount: subtotal
-        }
-      ];
-
-      const invoiceData = {
-        invoiceNumber: generateInvoiceNumber(),
-        customerId: sub.customerId._id || sub.customerId,
-        subscriptionId: sub._id,
-        billingPeriodStart,
-        billingPeriodEnd,
-        issuedAt: now,
-        dueAt,
-        lineItems,
-        subtotal,
-        taxRatePercent,
-        taxAmount,
-        totalAmount,
-        paidAmount: 0,
-        outstandingAmount,
-        status: 'confirmed'
-      };
-
       try {
+        if (!sub.customerId) {
+          throw new Error('Subscription references a missing or unassigned customer');
+        }
+
+        // Billing period definition:
+        // billingPeriodEnd corresponds to the subscription's scheduled nextBillingDate
+        const billingPeriodEnd = new Date(sub.nextBillingDate);
+        
+        // billingPeriodStart is one cycle interval before nextBillingDate
+        const calculatedStart = calculatePreviousBillingDate(billingPeriodEnd, sub.billingIntervalSnapshot);
+        // Ensure period start doesn't precede the subscription's start date
+        const billingPeriodStart = calculatedStart < new Date(sub.startDate) 
+          ? new Date(sub.startDate) 
+          : calculatedStart;
+
+        // Subtotal calculation in integer paise
+        const unitPrice = sub.unitPriceSnapshot;
+        const quantity = sub.quantity;
+        const subtotal = unitPrice * quantity;
+
+        // 18% tax calculation in integer paise with Math.round
+        const taxRatePercent = 18;
+        const taxAmount = Math.round((subtotal * taxRatePercent) / 100);
+        const totalAmount = subtotal + taxAmount;
+        const outstandingAmount = totalAmount;
+
+        // Due date: 7 days after billingPeriodEnd
+        const dueAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        const planName = sub.planId ? sub.planId.name : 'Subscription Plan';
+        const lineItems = [
+          {
+            description: `${planName} (${sub.billingIntervalSnapshot}) x ${quantity}`,
+            quantity,
+            unitPrice,
+            amount: subtotal
+          }
+        ];
+
+        const invoiceData = {
+          invoiceNumber: generateInvoiceNumber(),
+          customerId: sub.customerId._id || sub.customerId,
+          subscriptionId: sub._id,
+          billingPeriodStart,
+          billingPeriodEnd,
+          issuedAt: now,
+          dueAt,
+          lineItems,
+          subtotal,
+          taxRatePercent,
+          taxAmount,
+          totalAmount,
+          paidAmount: 0,
+          outstandingAmount,
+          status: 'confirmed'
+        };
+
         const createdInvoice = await createInvoiceWithRetry(invoiceData);
 
         // Advance nextBillingDate ONLY after successful invoice creation
@@ -122,6 +126,12 @@ const runBilling = async (req, res) => {
         // Duplicate-key error (code 11000) for compound index (subscriptionId + billingPeriodStart + billingPeriodEnd)
         if (err.code === 11000) {
           // Identify existing invoice for this subscription and billing period
+          const billingPeriodEnd = new Date(sub.nextBillingDate);
+          const calculatedStart = calculatePreviousBillingDate(billingPeriodEnd, sub.billingIntervalSnapshot);
+          const billingPeriodStart = calculatedStart < new Date(sub.startDate) 
+            ? new Date(sub.startDate) 
+            : calculatedStart;
+
           const existingInvoice = await Invoice.findOne({
             subscriptionId: sub._id,
             billingPeriodStart,

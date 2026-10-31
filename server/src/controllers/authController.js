@@ -12,6 +12,78 @@ const signToken = (id, role) => {
   });
 };
 
+const register = async (req, res) => {
+  try {
+    const { name, email, password, role = 'staff' } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Name, email, and password are required.'
+        }
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'DUPLICATE_EMAIL',
+          message: 'A user with this email already exists.'
+        }
+      });
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      passwordHash,
+      role: role === 'admin' ? 'admin' : 'staff'
+    });
+
+    const token = signToken(user._id, user.role);
+
+    return res.status(201).json({
+      success: true,
+      message: 'User registered successfully.',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt
+        }
+      }
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((e) => e.message).join(', ');
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: messages }
+      });
+    }
+    console.error('[AuthController.register] Error:', error.message);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'An unexpected error occurred during registration.'
+      }
+    });
+  }
+};
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -110,6 +182,7 @@ const getMe = async (req, res) => {
 };
 
 module.exports = {
+  register,
   login,
   getMe
 };

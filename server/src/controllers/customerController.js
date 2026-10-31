@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Customer = require('../models/Customer');
 
 // GET /api/customers
@@ -61,7 +62,15 @@ const createCustomer = async (req, res) => {
 // GET /api/customers/:id
 const getCustomer = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid customer ID format' }
+      });
+    }
+
+    const customer = await Customer.findById(id);
     if (!customer) {
       return res.status(404).json({
         success: false,

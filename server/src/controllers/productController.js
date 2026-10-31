@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 
 // GET /api/products
@@ -73,6 +74,14 @@ const createProduct = async (req, res) => {
 // PATCH /api/products/:id
 const updateProduct = async (req, res) => {
   try {
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid product ID format' }
+      });
+    }
+
     const allowed = ['name', 'type', 'salesPrice', 'costPrice', 'notes', 'variants', 'isActive'];
     const updates = {};
     for (const key of allowed) {
@@ -86,8 +95,15 @@ const updateProduct = async (req, res) => {
       });
     }
 
+    if (updates.costPrice !== undefined && (!Number.isInteger(updates.costPrice) || updates.costPrice < 0)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'costPrice must be a non-negative integer (paise).' }
+      });
+    }
+
     const product = await Product.findByIdAndUpdate(
-      req.params.id,
+      id,
       updates,
       { new: true, runValidators: true }
     );

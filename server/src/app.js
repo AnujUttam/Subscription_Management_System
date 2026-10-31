@@ -14,11 +14,25 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
-// Middlewares
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+// CORS configuration supporting React dev server (3000), Vite (5173), and CLIENT_URL
+const defaultOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+const clientUrls = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((u) => u.trim())
+  : [];
+const allowedOrigins = [...new Set([...defaultOrigins, ...clientUrls])];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -55,12 +69,36 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('[UnhandledError]', err.stack || err.message);
-  res.status(500).json({
+  // Handle invalid JSON payload syntax error
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_JSON',
+        message: 'Malformed JSON payload provided in request body'
+      }
+    });
+  }
+
+  // Handle CORS errors
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({
+      success: false,
+      error: {
+        code: 'CORS_ERROR',
+        message: err.message
+      }
+    });
+  }
+
+  console.error('[GlobalErrorHandler]', err.stack || err.message);
+
+  const status = err.statusCode || 500;
+  return res.status(status).json({
     success: false,
     error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'An internal server error occurred.'
+      code: err.code || 'SERVER_ERROR',
+      message: err.message || 'Internal Server Error'
     }
   });
 });

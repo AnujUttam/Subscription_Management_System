@@ -14,6 +14,18 @@ const recordPayment = async (req, res) => {
     });
   }
 
+  // Pre-validate paymentMethod against allowed enum values
+  const allowedMethods = ['cash', 'bank_transfer', 'credit_card', 'demo'];
+  if (!allowedMethods.includes(paymentMethod)) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: `Invalid payment method '${paymentMethod}'. Allowed methods: ${allowedMethods.join(', ')}`
+      }
+    });
+  }
+
   // Start MongoDB multi-document ACID transaction
   const session = await mongoose.startSession();
   session.startTransaction();

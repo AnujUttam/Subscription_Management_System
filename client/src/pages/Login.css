@@ -1,0 +1,38 @@
+
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.remember-me input {
+  accent-color: #6366f1;
+}
+
+.login-options a {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-options a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 380px) {
+  .login-options {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

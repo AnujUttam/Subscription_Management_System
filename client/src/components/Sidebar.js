@@ -100,11 +100,29 @@ function Sidebar() {
             </NavLink>
           );
         })}
+
+        {/* Admin Only: Staff Management */}
+        {user?.role === "admin" && (
+          <NavLink
+            to="/staff"
+            className={({ isActive }) =>
+              isActive ? "menu-link active" : "menu-link"
+            }
+          >
+            <Users size={19} />
+            <span>Staff</span>
+          </NavLink>
+        )}
       </div>
 
       {/* Bottom Section */}
       <div className="sidebar-bottom">
-        <NavLink to="/settings" className="menu-link">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            isActive ? "menu-link active" : "menu-link"
+          }
+        >
           <Settings size={19} />
           <span>Settings</span>
         </NavLink>

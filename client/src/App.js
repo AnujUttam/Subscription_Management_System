@@ -15,6 +15,7 @@ import Invoices from "./pages/Invoices";
 import Payments from "./pages/Payments";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomerPortal from "./pages/CustomerPortal";
+import Staff from "./pages/Staff";
 
 function App() {
   return (
@@ -36,8 +37,9 @@ function App() {
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
-  <Route path="/portal" element={<CustomerPortal />} />
-</Route>
+        <Route path="/portal" element={<CustomerPortal />} />
+          <Route path="/staff" element={<Staff />} />
+      </Route>
     </Routes>
   );
 }

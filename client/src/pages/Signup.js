@@ -11,6 +11,8 @@ function Signup() {
     password: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -18,13 +20,48 @@ function Signup() {
       ...prev,
       [name]: value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Full name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    }
+
+    const password = formData.password;
+
+    if (password.length < 9) {
+      newErrors.password = "Password must contain at least 9 characters";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = "Include at least one uppercase letter";
+    } else if (!/[a-z]/.test(password)) {
+      newErrors.password = "Include at least one lowercase letter";
+    } else if (!/[^A-Za-z0-9]/.test(password)) {
+      newErrors.password = "Include at least one special character";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Signup Form Data:", formData);
-    alert("Signup UI is ready. API integration will be added later.");
+    if (!validateForm()) return;
+
+    console.log("Signup Data:", formData);
+    alert("Validation successful! API integration will be added later.");
   };
 
   return (
@@ -54,6 +91,7 @@ function Signup() {
                 required
               />
             </div>
+            {errors.name && <small className="field-error">{errors.name}</small>}
           </div>
 
           <div className="auth-input-group">
@@ -69,6 +107,7 @@ function Signup() {
                 required
               />
             </div>
+            {errors.email && <small className="field-error">{errors.email}</small>}
           </div>
 
           <div className="auth-input-group">
@@ -81,11 +120,13 @@ function Signup() {
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
-                minLength={9}
                 required
               />
             </div>
-            <small>At least 9 characters required.</small>
+            {errors.password && (
+              <small className="field-error">{errors.password}</small>
+            )}
+            <small>Minimum 9 characters, uppercase, lowercase and special character.</small>
           </div>
 
           <button type="submit" className="auth-submit-btn">

@@ -1,0 +1,135 @@
+
+.premium-chart-card {
+  background: #111827;
+  border: 1px solid #273449;
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 24px;
+  color: #ffffff;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+}
+
+.premium-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.chart-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: #818cf8;
+}
+
+.premium-chart-header h3 {
+  font-size: 19px;
+  margin: 9px 0 6px;
+}
+
+.premium-chart-header p {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.premium-chart-header select {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 9px 12px;
+  outline: none;
+  font-size: 12px;
+}
+
+.revenue-highlight {
+  margin-top: 25px;
+}
+
+.revenue-highlight h2 {
+  font-size: 32px;
+  letter-spacing: -1px;
+  color: #ffffff;
+}
+
+.revenue-highlight span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.premium-chart {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.premium-tooltip {
+  background: #1e293b;
+  border: 1px solid #475569;
+  padding: 13px 16px;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.premium-tooltip span,
+.premium-tooltip small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.premium-tooltip h3 {
+  color: #ffffff;
+  font-size: 19px;
+  margin: 7px 0;
+}
+
+.chart-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #273449;
+  padding-top: 17px;
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.chart-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #818cf8;
+}
+
+@media (max-width: 600px) {
+  .premium-chart-card {
+    padding: 18px 12px;
+    border-radius: 14px;
+  }
+
+  .premium-chart-header h3 {
+    font-size: 16px;
+  }
+
+  .premium-chart-header p {
+    max-width: 190px;
+    line-height: 1.5;
+  }
+
+  .premium-chart-header select {
+    max-width: 120px;
+    font-size: 10px;
+  }
+
+  .revenue-highlight h2 {
+    font-size: 27px;
+  }
+}

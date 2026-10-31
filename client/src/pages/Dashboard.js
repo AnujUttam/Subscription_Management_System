@@ -1,5 +1,6 @@
 
 import React from "react";
+import DashboardCharts from "../components/DashboardCharts";
 import {
   RefreshCw,
   Wallet,
@@ -78,6 +79,10 @@ function Dashboard() {
           );
         })}
       </div>
+
+
+      <DashboardCharts />
+
 
       {/* Dashboard Bottom Sections */}
       <div className="dashboard-bottom">

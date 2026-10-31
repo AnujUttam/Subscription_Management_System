@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -15,25 +14,30 @@ import Subscriptions from "./pages/Subscriptions";
 import Invoices from "./pages/Invoices";
 import Payments from "./pages/Payments";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CustomerPortal from "./pages/CustomerPortal";
 
 function App() {
   return (
     <Routes>
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
-      
+
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
-    <Route element={<DashboardLayout />}>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/products" element={<Products />} />
-      <Route path="/plans" element={<Plans />} />
-      <Route path="/customers" element={<Customers />} />
-      <Route path="/subscriptions" element={<Subscriptions />} />
-      <Route path="/invoices" element={<Invoices />} />
-      <Route path="/payments" element={<Payments />} />
-    </Route>
-  </Route>
+        <Route element={<DashboardLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/plans" element={<Plans />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/payments" element={<Payments />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
+  <Route path="/portal" element={<CustomerPortal />} />
+</Route>
     </Routes>
   );
 }

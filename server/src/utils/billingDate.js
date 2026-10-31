@@ -59,6 +59,68 @@ function calculateNextBillingDate(fromDate, interval) {
   return result;
 }
 
+/**
+ * Calculates the previous billing date by stepping backward one interval.
+ *
+ * @param {Date|string} toDate
+ * @param {'daily'|'weekly'|'monthly'|'yearly'} interval
+ * @returns {Date}
+ */
+function calculatePreviousBillingDate(toDate, interval) {
+  const date = new Date(toDate);
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid date provided to calculatePreviousBillingDate');
+  }
+
+  const result = new Date(date.getTime());
+
+  switch (interval) {
+    case 'daily': {
+      result.setUTCDate(result.getUTCDate() - 1);
+      break;
+    }
+    case 'weekly': {
+      result.setUTCDate(result.getUTCDate() - 7);
+      break;
+    }
+    case 'monthly': {
+      const currentDay = result.getUTCDate();
+      const currentMonth = result.getUTCMonth();
+      const currentYear = result.getUTCFullYear();
+
+      // Target month is currentMonth - 1
+      let targetMonth = currentMonth - 1;
+      let targetYear = currentYear;
+      if (targetMonth < 0) {
+        targetMonth = 11;
+        targetYear -= 1;
+      }
+
+      const maxDaysInTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      const targetDay = Math.min(currentDay, maxDaysInTargetMonth);
+
+      result.setUTCFullYear(targetYear, targetMonth, targetDay);
+      break;
+    }
+    case 'yearly': {
+      const currentDay = result.getUTCDate();
+      const currentMonth = result.getUTCMonth();
+      const targetYear = result.getUTCFullYear() - 1;
+
+      const maxDaysInTargetMonth = new Date(Date.UTC(targetYear, currentMonth + 1, 0)).getUTCDate();
+      const targetDay = Math.min(currentDay, maxDaysInTargetMonth);
+
+      result.setUTCFullYear(targetYear, currentMonth, targetDay);
+      break;
+    }
+    default:
+      throw new Error(`Unsupported billing interval: ${interval}`);
+  }
+
+  return result;
+}
+
 module.exports = {
-  calculateNextBillingDate
+  calculateNextBillingDate,
+  calculatePreviousBillingDate
 };

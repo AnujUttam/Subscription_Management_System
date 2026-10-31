@@ -7,6 +7,8 @@ const customerRoutes = require('./routes/customerRoutes');
 const productRoutes = require('./routes/productRoutes');
 const planRoutes = require('./routes/planRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const billingRoutes = require('./routes/billingRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/billing', billingRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Root fallback
 app.get('/', (req, res) => {

@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build and production outputs
+dist/
+build/
+out/
+.next/
+
+# Logs and runtime diagnostics
+logs/
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Private developer planning checklist (do not track/push)
+checklist-divyanshu.md
+subscription-management-docs/checklist-divyanshu.md
+subscription-management-docs/project.md
+subscription-management-docs/architecture.md

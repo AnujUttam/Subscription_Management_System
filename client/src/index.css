@@ -1,4 +1,3 @@
-
 * {
   margin: 0;
   padding: 0;
@@ -32,4 +31,50 @@ textarea {
 .page-header p {
   color: #6b7280;
   font-size: 14px;
+}
+
+/* Universal clickable search icons & input wrappers across all pages */
+.customer-search,
+.product-search,
+.plan-search,
+.subscription-search,
+.invoice-search,
+.payment-search,
+.staff-search {
+  cursor: text;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.customer-search:focus-within,
+.product-search:focus-within,
+.plan-search:focus-within,
+.subscription-search:focus-within,
+.invoice-search:focus-within,
+.payment-search:focus-within,
+.staff-search:focus-within {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.customer-search svg,
+.product-search svg,
+.plan-search svg,
+.subscription-search svg,
+.invoice-search svg,
+.payment-search svg,
+.staff-search svg {
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.customer-search svg:hover,
+.product-search svg:hover,
+.plan-search svg:hover,
+.subscription-search svg:hover,
+.invoice-search svg:hover,
+.payment-search svg:hover,
+.staff-search svg:hover {
+  color: #2563eb;
+  transform: scale(1.15);
 }

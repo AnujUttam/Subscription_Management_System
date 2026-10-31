@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Invoice = require('../models/Invoice');
 const Subscription = require('../models/Subscription');
 const { calculateNextBillingDate, calculatePreviousBillingDate } = require('../utils/billingDate');
+const { createNotification } = require('../utils/notificationService');
 
 /**
  * Generates an invoice number like INV-YYYYMMDD-XXXXX
@@ -109,6 +110,15 @@ const runBilling = async (req, res) => {
         };
 
         const createdInvoice = await createInvoiceWithRetry(invoiceData);
+
+        createNotification({
+          title: 'Invoice Generated',
+          message: `Invoice ${createdInvoice.invoiceNumber} (₹${createdInvoice.totalAmount}) generated for customer.`,
+          type: 'invoice',
+          level: 'info',
+          link: '/invoices',
+          metadata: { invoiceId: createdInvoice._id.toString() }
+        });
 
         // Advance nextBillingDate ONLY after successful invoice creation
         const nextDate = calculateNextBillingDate(sub.nextBillingDate, sub.billingIntervalSnapshot);

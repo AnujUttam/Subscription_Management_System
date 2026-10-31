@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Products.css";
 
 const emptyForm = {
@@ -226,9 +227,16 @@ function Products() {
     setErrors({});
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
+
+  const filteredProducts = products.filter((product) => {
+    if (!effectiveSearch) return true;
+    const name = (product.name || "").toLowerCase();
+    const desc = (product.description || "").toLowerCase();
+    const cat = (product.category || "").toLowerCase();
+    return name.includes(effectiveSearch) || desc.includes(effectiveSearch) || cat.includes(effectiveSearch);
+  });
 
   return (
     <div className="products-page">
@@ -341,10 +349,14 @@ function Products() {
               <tr>
                 <td colSpan="7">
                   <EmptyState
-                    title="No products found"
-                    description="Try another search or add a new product."
-                    actionLabel="Add Product"
-                    onAction={openAddModal}
+                    title={effectiveSearch ? "No matching products found" : "No products found"}
+                    description={
+                      effectiveSearch
+                        ? `No products match "${effectiveSearch}". Try another keyword or clear the search.`
+                        : "Try another search or add a new product."
+                    }
+                    actionLabel={effectiveSearch ? "Clear Search" : "Add Product"}
+                    onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : openAddModal}
                   />
                 </td>
               </tr>

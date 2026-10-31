@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Payment = require('../models/Payment');
 const Invoice = require('../models/Invoice');
+const { createNotification } = require('../utils/notificationService');
 
 // POST /api/payments
 const recordPayment = async (req, res) => {
@@ -104,6 +105,15 @@ const recordPayment = async (req, res) => {
     // Commit both operations together atomically
     await session.commitTransaction();
     await session.endSession();
+
+    createNotification({
+      title: 'Payment Received',
+      message: `Payment of ₹${paymentAmount} received for Invoice ${updatedInvoice.invoiceNumber}.`,
+      type: 'payment',
+      level: 'success',
+      link: '/payments',
+      metadata: { invoiceId: updatedInvoice._id.toString(), paymentId: createdPayment._id.toString() }
+    });
 
     // Populate for clean client presentation
     const populatedPayment = await Payment.findById(createdPayment._id)

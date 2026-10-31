@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Customers.css";
 
 const initialCustomers = [
@@ -82,16 +83,28 @@ function Customers() {
     fetchCustomers();
   }, []);
 
-  const filteredCustomers = useMemo(() => {
-    const value = search.toLowerCase();
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
 
-    return customers.filter(
-      (customer) =>
-        customer.name.toLowerCase().includes(value) ||
-        customer.email.toLowerCase().includes(value) ||
-        customer.phone.includes(value)
-    );
-  }, [customers, search]);
+  const filteredCustomers = useMemo(() => {
+    if (!effectiveSearch) return customers;
+
+    return customers.filter((customer) => {
+      const name = (customer.name || "").toLowerCase();
+      const email = (customer.email || "").toLowerCase();
+      const phone = (customer.phone || "").toLowerCase();
+      const address = (customer.address || "").toLowerCase();
+      const company = (customer.company || "").toLowerCase();
+
+      return (
+        name.includes(effectiveSearch) ||
+        email.includes(effectiveSearch) ||
+        phone.includes(effectiveSearch) ||
+        address.includes(effectiveSearch) ||
+        company.includes(effectiveSearch)
+      );
+    });
+  }, [customers, effectiveSearch]);
 
   const activeCount = customers.filter(
     (customer) => customer.status === "Active"
@@ -298,10 +311,14 @@ function Customers() {
 
         {filteredCustomers.length === 0 ? (
           <EmptyState
-            title="No customers found"
-            description="Try another search or add a new customer."
-            actionLabel="Add Customer"
-            onAction={openAddModal}
+            title={effectiveSearch ? "No matching customers found" : "No customers found"}
+            description={
+              effectiveSearch
+                ? `No customers match "${effectiveSearch}". Try another keyword or clear the search.`
+                : "Try another search or add a new customer."
+            }
+            actionLabel={effectiveSearch ? "Clear Search" : "Add Customer"}
+            onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : openAddModal}
           />
         ) : (
           <div className="customers-table-wrapper">

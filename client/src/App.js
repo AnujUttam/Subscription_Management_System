@@ -15,6 +15,7 @@ import Invoices from "./pages/Invoices";
 import Payments from "./pages/Payments";
 import Staff from "./pages/Staff";
 import Settings from "./pages/Settings";
+import Notifications from "./pages/Notifications";
 import CustomerPortal from "./pages/CustomerPortal";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -38,6 +39,7 @@ function App() {
           <Route path="/staff" element={<Staff />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Settings />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Route>
       </Route>
 

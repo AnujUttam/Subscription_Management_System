@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Subscriptions.css";
 
 const STATUSES = ["Draft", "Quotation", "Confirmed", "Active", "Closed"];
@@ -122,21 +123,33 @@ function Subscriptions() {
     fetchSubscriptions();
   }, []);
 
-  const filteredSubscriptions = useMemo(() => {
-    const query = search.toLowerCase();
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
 
+  const filteredSubscriptions = useMemo(() => {
     return subscriptions.filter((item) => {
+      const customer = (item.customer || "").toLowerCase();
+      const plan = (item.plan || "").toLowerCase();
+      const email = (item.email || "").toLowerCase();
+      const status = (item.status || "").toLowerCase();
+      const subId = String(item.id || item._id || "").toLowerCase();
+      const amount = String(item.amount || "");
+
       const matchesSearch =
-        item.customer.toLowerCase().includes(query) ||
-        item.plan.toLowerCase().includes(query) ||
-        item.email.toLowerCase().includes(query);
+        !effectiveSearch ||
+        customer.includes(effectiveSearch) ||
+        plan.includes(effectiveSearch) ||
+        email.includes(effectiveSearch) ||
+        status.includes(effectiveSearch) ||
+        subId.includes(effectiveSearch) ||
+        amount.includes(effectiveSearch);
 
       const matchesStatus =
         statusFilter === "All" || item.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
-  }, [subscriptions, search, statusFilter]);
+  }, [subscriptions, effectiveSearch, statusFilter]);
 
   const activeCount = subscriptions.filter(
     (item) => item.status === "Active"
@@ -390,10 +403,14 @@ function Subscriptions() {
 
         {filteredSubscriptions.length === 0 ? (
           <EmptyState
-            title="No subscriptions found"
-            description="Try changing your filters or create a subscription."
-            actionLabel="Create Subscription"
-            onAction={openAddModal}
+            title={effectiveSearch ? "No matching subscriptions found" : "No subscriptions found"}
+            description={
+              effectiveSearch
+                ? `No subscriptions match "${effectiveSearch}". Try another keyword or clear the search.`
+                : "Try changing your filters or create a subscription."
+            }
+            actionLabel={effectiveSearch ? "Clear Search" : "Create Subscription"}
+            onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : openAddModal}
           />
         ) : (
           <div className="subscriptions-table-wrapper">

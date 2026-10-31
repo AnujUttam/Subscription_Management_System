@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Invoices.css";
 
 const initialInvoices = [
@@ -132,21 +133,31 @@ function Invoices() {
     fetchInvoices();
   }, []);
 
-  const filteredInvoices = useMemo(() => {
-    const query = search.toLowerCase();
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
 
+  const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
+      const num = (invoice.invoiceNumber || "").toLowerCase();
+      const customer = (invoice.customer || "").toLowerCase();
+      const email = (invoice.email || "").toLowerCase();
+      const status = (invoice.status || "").toLowerCase();
+      const total = String(invoice.total || invoice.totalAmount || "");
+
       const matchesSearch =
-        invoice.invoiceNumber.toLowerCase().includes(query) ||
-        invoice.customer.toLowerCase().includes(query) ||
-        invoice.email.toLowerCase().includes(query);
+        !effectiveSearch ||
+        num.includes(effectiveSearch) ||
+        customer.includes(effectiveSearch) ||
+        email.includes(effectiveSearch) ||
+        status.includes(effectiveSearch) ||
+        total.includes(effectiveSearch);
 
       const matchesStatus =
         statusFilter === "All" || invoice.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
-  }, [invoices, search, statusFilter]);
+  }, [invoices, effectiveSearch, statusFilter]);
 
   const totalInvoiced = invoices.reduce(
     (sum, invoice) => sum + invoice.total,
@@ -294,8 +305,14 @@ function Invoices() {
 
         {filteredInvoices.length === 0 ? (
           <EmptyState
-            title="No invoices found"
-            description="Try changing your search or status filter."
+            title={effectiveSearch ? "No matching invoices found" : "No invoices found"}
+            description={
+              effectiveSearch
+                ? `No invoices match "${effectiveSearch}". Try another keyword or clear the search.`
+                : "Try changing your search or status filter."
+            }
+            actionLabel={effectiveSearch ? "Clear Search" : undefined}
+            onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : undefined}
           />
         ) : (
           <div className="invoices-table-wrapper">

@@ -3,6 +3,7 @@ const Subscription = require('../models/Subscription');
 const Customer = require('../models/Customer');
 const Plan = require('../models/Plan');
 const { calculateNextBillingDate } = require('../utils/billingDate');
+const { createNotification } = require('../utils/notificationService');
 
 // POST /api/subscriptions
 const createSubscription = async (req, res) => {
@@ -102,6 +103,15 @@ const createSubscription = async (req, res) => {
     const populated = await Subscription.findById(subscription._id)
       .populate('customerId', 'name email')
       .populate('planId', 'name billingInterval price');
+
+    createNotification({
+      title: 'Subscription Created',
+      message: `New ${plan.name} subscription created for ${customer.name}.`,
+      type: 'subscription',
+      level: 'success',
+      link: '/subscriptions',
+      metadata: { subscriptionId: subscription._id.toString() }
+    });
 
     return res.status(201).json({
       success: true,
@@ -237,6 +247,26 @@ const updateSubscription = async (req, res) => {
     const populated = await Subscription.findById(subscription._id)
       .populate('customerId', 'name email')
       .populate('planId', 'name billingInterval price');
+
+    if (status === 'active') {
+      createNotification({
+        title: 'Subscription Activated',
+        message: `Subscription for ${populated.customerId?.name || 'Customer'} is now active.`,
+        type: 'subscription',
+        level: 'success',
+        link: '/subscriptions',
+        metadata: { subscriptionId: subscription._id.toString() }
+      });
+    } else if (status === 'closed') {
+      createNotification({
+        title: 'Subscription Cancelled',
+        message: `Subscription for ${populated.customerId?.name || 'Customer'} has been closed.`,
+        type: 'subscription',
+        level: 'warning',
+        link: '/subscriptions',
+        metadata: { subscriptionId: subscription._id.toString() }
+      });
+    }
 
     return res.status(200).json({
       success: true,

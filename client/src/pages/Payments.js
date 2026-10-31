@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Payments.css";
 
 const initialPayments = [
@@ -123,15 +124,28 @@ function Payments() {
     fetchPayments();
   }, []);
 
-  const filteredPayments = useMemo(() => {
-    const query = search.toLowerCase();
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
 
+  const filteredPayments = useMemo(() => {
     return payments.filter((payment) => {
+      const tx = (payment.transactionId || "").toLowerCase();
+      const customer = (payment.customer || "").toLowerCase();
+      const inv = (payment.invoiceNumber || "").toLowerCase();
+      const email = (payment.email || "").toLowerCase();
+      const method = (payment.method || "").toLowerCase();
+      const status = (payment.status || "").toLowerCase();
+      const amount = String(payment.amount || "");
+
       const matchesSearch =
-        payment.transactionId.toLowerCase().includes(query) ||
-        payment.customer.toLowerCase().includes(query) ||
-        payment.invoiceNumber.toLowerCase().includes(query) ||
-        payment.email.toLowerCase().includes(query);
+        !effectiveSearch ||
+        tx.includes(effectiveSearch) ||
+        customer.includes(effectiveSearch) ||
+        inv.includes(effectiveSearch) ||
+        email.includes(effectiveSearch) ||
+        method.includes(effectiveSearch) ||
+        status.includes(effectiveSearch) ||
+        amount.includes(effectiveSearch);
 
       const matchesStatus =
         statusFilter === "All" || payment.status === statusFilter;
@@ -141,7 +155,7 @@ function Payments() {
 
       return matchesSearch && matchesStatus && matchesMethod;
     });
-  }, [payments, search, statusFilter, methodFilter]);
+  }, [payments, effectiveSearch, statusFilter, methodFilter]);
 
   const completedPayments = payments.filter(
     (payment) => payment.status === "Completed"
@@ -343,10 +357,14 @@ function Payments() {
 
         {filteredPayments.length === 0 ? (
           <EmptyState
-            title="No payments found"
-            description="Try changing your search or filters, or record a payment."
-            actionLabel="Record Payment"
-            onAction={openAddModal}
+            title={effectiveSearch ? "No matching payments found" : "No payments found"}
+            description={
+              effectiveSearch
+                ? `No payments match "${effectiveSearch}". Try another keyword or clear the search.`
+                : "Try changing your search or filters, or record a payment."
+            }
+            actionLabel={effectiveSearch ? "Clear Search" : "Record Payment"}
+            onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : openAddModal}
           />
         ) : (
           <div className="payments-table-wrapper">

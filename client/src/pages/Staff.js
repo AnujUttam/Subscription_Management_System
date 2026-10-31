@@ -1,6 +1,6 @@
-
 import React, { useMemo, useState } from "react";
 import { Plus, Search, Pencil, Trash2, X, Users, UserCheck } from "lucide-react";
+import { useSearch } from "../context/SearchContext";
 import "./Staff.css";
 
 const initialStaff = [
@@ -42,13 +42,18 @@ function Staff() {
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
 
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
+
   const filteredStaff = useMemo(() => {
-    return staff.filter((member) =>
-      `${member.name} ${member.email} ${member.role}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [staff, search]);
+    if (!effectiveSearch) return staff;
+    return staff.filter((member) => {
+      const name = (member.name || "").toLowerCase();
+      const email = (member.email || "").toLowerCase();
+      const role = (member.role || "").toLowerCase();
+      return name.includes(effectiveSearch) || email.includes(effectiveSearch) || role.includes(effectiveSearch);
+    });
+  }, [staff, effectiveSearch]);
 
   const activeCount = staff.filter(
     (member) => member.status === "Active"
@@ -242,8 +247,30 @@ function Staff() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="staff-empty">
-                    No staff members found.
+                  <td colSpan="5" className="staff-empty" style={{ textAlign: "center", padding: "24px" }}>
+                    {effectiveSearch
+                      ? `No staff members match "${effectiveSearch}".`
+                      : "No staff members found."}
+                    {effectiveSearch && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearch("");
+                          clearSearch();
+                        }}
+                        style={{
+                          marginLeft: 10,
+                          padding: "4px 10px",
+                          borderRadius: "6px",
+                          border: "1px solid #d1d5db",
+                          background: "#ffffff",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                        }}
+                      >
+                        Clear search
+                      </button>
+                    )}
                   </td>
                 </tr>
               )}

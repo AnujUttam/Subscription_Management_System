@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import api from "../services/api";
+import { useSearch } from "../context/SearchContext";
 import "./Plans.css";
 
 const emptyForm = {
@@ -206,9 +207,17 @@ function Plans() {
     }
   };
 
-  const filteredPlans = plans.filter((plan) =>
-    plan.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || search || "").trim().toLowerCase();
+
+  const filteredPlans = plans.filter((plan) => {
+    if (!effectiveSearch) return true;
+    const name = (plan.name || "").toLowerCase();
+    const interval = (plan.billingInterval || plan.interval || "").toLowerCase();
+    const price = String(plan.price || "");
+    const product = (plan.productId?.name || "").toLowerCase();
+    return name.includes(effectiveSearch) || interval.includes(effectiveSearch) || price.includes(effectiveSearch) || product.includes(effectiveSearch);
+  });
 
   return (
     <div className="plans-page">
@@ -351,10 +360,14 @@ function Plans() {
               <tr>
                 <td colSpan="6">
                   <EmptyState
-                    title="No plans found"
-                    description="Create a subscription plan to get started."
-                    actionLabel="Create Plan"
-                    onAction={openAddModal}
+                    title={effectiveSearch ? "No matching plans found" : "No plans found"}
+                    description={
+                      effectiveSearch
+                        ? `No plans match "${effectiveSearch}". Try another keyword or clear the search.`
+                        : "Create a subscription plan to get started."
+                    }
+                    actionLabel={effectiveSearch ? "Clear Search" : "Create Plan"}
+                    onAction={effectiveSearch ? () => { setSearch(""); clearSearch(); } : openAddModal}
                   />
                 </td>
               </tr>

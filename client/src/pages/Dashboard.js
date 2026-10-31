@@ -14,6 +14,7 @@ import DashboardCharts from "./DashboardCharts";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import { fetchDashboardData } from "../services/dashboardService";
+import { useSearch } from "../context/SearchContext";
 import "./Dashboard.css";
 
 const formatPaymentMethod = (method) => {
@@ -210,6 +211,27 @@ function Dashboard() {
   const statusClass = (status) =>
     `dashboard-status dashboard-${status.toLowerCase()}`;
 
+  const { searchTerm, clearSearch } = useSearch();
+  const effectiveSearch = (searchTerm || "").trim().toLowerCase();
+
+  const displayedPayments = useMemo(() => {
+    if (!effectiveSearch) return formattedPayments;
+    return formattedPayments.filter((p) => {
+      const cust = (p.customer || "").toLowerCase();
+      const id = (p.id || "").toLowerCase();
+      const method = (p.method || "").toLowerCase();
+      const status = (p.status || "").toLowerCase();
+      const amount = String(p.amount || "");
+      return (
+        cust.includes(effectiveSearch) ||
+        id.includes(effectiveSearch) ||
+        method.includes(effectiveSearch) ||
+        status.includes(effectiveSearch) ||
+        amount.includes(effectiveSearch)
+      );
+    });
+  }, [formattedPayments, effectiveSearch]);
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -271,6 +293,42 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      {effectiveSearch && (
+        <div
+          style={{
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+            color: "#1e40af",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            marginBottom: "20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: "13px",
+          }}
+        >
+          <span>
+            Filtering dashboard records matching: <strong>"{effectiveSearch}"</strong> ({displayedPayments.length} transactions matched)
+          </span>
+          <button
+            type="button"
+            onClick={clearSearch}
+            style={{
+              background: "#ffffff",
+              border: "1px solid #93c5fd",
+              borderRadius: "5px",
+              padding: "4px 10px",
+              fontSize: "12px",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
 
       <div className="dashboard-stats-grid">
         <div className="dashboard-stat-card">
@@ -344,8 +402,8 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-recent-list">
-            {formattedPayments.length > 0 ? (
-              formattedPayments.map((payment) => (
+            {displayedPayments.length > 0 ? (
+              displayedPayments.map((payment) => (
                 <div className="dashboard-payment-row" key={payment.id}>
                   <div className="dashboard-payment-icon">
                     <CheckCircle size={18} />
@@ -375,7 +433,9 @@ function Dashboard() {
                   textAlign: "center",
                 }}
               >
-                No payments recorded yet.
+                {effectiveSearch
+                  ? `No payments match "${effectiveSearch}".`
+                  : "No payments recorded yet."}
               </p>
             )}
           </div>

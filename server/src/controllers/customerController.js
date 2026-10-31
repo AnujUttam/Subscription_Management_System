@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Customer = require('../models/Customer');
+const { createNotification } = require('../utils/notificationService');
 
 // GET /api/customers
 const listCustomers = async (req, res) => {
@@ -31,6 +32,15 @@ const createCustomer = async (req, res) => {
     }
 
     const customer = await Customer.create({ name, email, phone, company, address });
+
+    createNotification({
+      title: 'New Customer Registered',
+      message: `${customer.name} (${customer.email}) has been added as a customer.`,
+      type: 'customer',
+      level: 'info',
+      link: '/customers',
+      metadata: { customerId: customer._id.toString() }
+    });
 
     return res.status(201).json({
       success: true,

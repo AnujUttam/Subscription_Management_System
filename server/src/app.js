@@ -6,6 +6,7 @@ const healthRoutes = require('./routes/healthRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const productRoutes = require('./routes/productRoutes');
 const planRoutes = require('./routes/planRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/plans', planRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Root fallback
 app.get('/', (req, res) => {
